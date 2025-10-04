@@ -13,3 +13,50 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+
+//========================================================================
+//User model
+//========================================================================
+model User {
+  id             String   @id @default(uuid())                // Уникальный идентификатор
+  email          String   @unique @db.VarChar(100)           // Email, используется для логина
+  password       String   @db.VarChar(100)                   // Хэш пароля
+  firstName      String   @db.VarChar(50)
+  lastName       String   @db.VarChar(50)                    
+  is2faEnabled   Boolean  @default(false)                    // Включена ли двухфакторная аутентификация
+  otpSecret      String?  @db.VarChar(100)                   // Секрет для 2FA (если включено)
+  createdAt      DateTime @default(now())                    // Дата регистрации
+  updatedAt      DateTime @updatedAt                         // Последнее обновление
+
+  role           String   @default("user") @db.VarChar(20)   // user, admin
+  avatarUrl      String?  @db.VarChar(255)                   // Ссылка на аватар
+  isActive       Boolean  @default(true)                     // Заблокирован ли пользователь
+
+  userInfo     UserInfo?     
+  userRoles    UserRole[]
+}
+
+model UserInfo {
+  id     String  @id @default(uuid())
+  bio    String  @db.Text
+  userId String  @unique
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Role {
+  id    String  @id @default(uuid())
+  name  String  @unique @db.VarChar(30)
+  users UserRole[]
+}
+
+model UserRole {
+  userId String
+  roleId String
+
+  user   User @relation(fields: [userId], references: [id])
+  role   Role @relation(fields: [roleId], references: [id])
+
+  @@id([userId, roleId])
+}
