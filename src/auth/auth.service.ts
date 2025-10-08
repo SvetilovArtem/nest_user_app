@@ -41,7 +41,9 @@ export class AuthService {
               userId: user.id,
             },
         })
-
+        return {
+            user
+        }
     }
 
     async login(dto: LoginDto) {
