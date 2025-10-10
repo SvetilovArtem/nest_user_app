@@ -9,7 +9,7 @@ datasource db {
 
 
 //========================================================================
-//User model
+//User models
 //========================================================================
 model User {
   id             String   @id @default(uuid())                // Уникальный идентификатор
@@ -17,23 +17,32 @@ model User {
   password       String   @db.VarChar(100)                   // Хэш пароля
   firstName      String   @db.VarChar(50)
   lastName       String   @db.VarChar(50)                    
-  is2faEnabled   Boolean  @default(false)                    // Включена ли двухфакторная аутентификация
-  otpSecret      String?  @db.VarChar(100)                   // Секрет для 2FA (если включено)
-  createdAt      DateTime @default(now())                    // Дата регистрации
-  updatedAt      DateTime @updatedAt                         // Последнее обновление
-
   role           String   @default("user") @db.VarChar(20)   // user, admin
   avatarUrl      String?  @db.VarChar(255)                   // Ссылка на аватар
-  isActive       Boolean  @default(true)                     // Заблокирован ли пользователь
+  isActive       Boolean  @default(true)   
+  
+  createdAt      DateTime @default(now())                    // Дата регистрации
+  updatedAt      DateTime @updatedAt                         // Последнее обновление                  
 
   userInfo     UserInfo?     
   userRoles    UserRole[]
+
+  userSettings UserSettings[]
 }
 
 model UserInfo {
   id     String  @id @default(uuid())
   bio    String  @db.Text
   userId String  @unique
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model UserSettings {
+  id String @id @default(uuid())
+  userId String @unique
+  is2faEnabled   Boolean  @default(false)                    // Включена ли двухфакторная аутентификация
+  otpChannel     String?   @db.VarChar(20)
 
   user User @relation(fields: [userId], references: [id])
 }

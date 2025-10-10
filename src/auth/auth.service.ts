@@ -42,6 +42,7 @@ export class AuthService {
             },
         })
         return {
+            message: "Вы успешно зарегистрированы !",
             user
         }
     }
@@ -60,11 +61,16 @@ export class AuthService {
             throw new UnauthorizedException("Неверный email или пароль!")
         }
 
+        if (user && isPasswordValid) {
+
+        }
+
         const payload = { sub: user.id, email: user.email }
         const accessToken = await this.jwt.signAsync(payload)
 
         return {
             accessToken,
+            message: "Вы успешно авторизованы!",
             user: {
                 id: user.id,
                 email: user.email,
@@ -73,6 +79,10 @@ export class AuthService {
                 avatar: user.avatarUrl
             }
         }
+    }
+
+    async generateOtpSecretCode(otpSecret: string) {
+        
     }
 
 }
